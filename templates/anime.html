@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>watching [[ listing.name ]]</title>
+    <style>
+      .anime {
+        margin: 10px 10vw;
+        width: 75vw;
+      }
+      .anime video {
+        width: 100%;
+      }
+      @media only screen and (max-width: 600px) {
+        .anime {
+          width: 95vw;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    [[ component:return ]]
+    <div id="main">
+      <div class="anime">
+        <h2 style="margin: 0;">[[ listing.name ]] [[ chapter ]]</h2>
+        <video src="/anime_assets/[[ listing.name ]]/[[ chapter ]].mp4" controls></video>
+        [[ component:nav ]]
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+.env
+node_modules
+static
+host_info.json
+*.js
+package-lock.json
+build

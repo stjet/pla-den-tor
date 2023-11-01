@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>reading [[ listing.name ]]</title>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .manga {
+        margin: 10px 20vw;
+        width: 60vw;
+        line-height: 0;
+      }
+      .manga img {
+        width: 100%;
+      }
+      @media only screen and (max-width: 600px) {
+        .manga {
+          margin: 10px 5vw;
+          width: 90vw;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    [[ component:return ]]
+    <div id="main">
+      <div class="manga">
+        <h2 style="display: inline-block;">[[ listing.name ]] [[ chapter ]]</h2>
+        <span style="cursor: pointer;" onclick="document.getElementById('nav').scrollIntoView({ behavior: 'smooth' })">Scroll to Bottom</span>
+        <br>
+        [[ for:images:image ]]
+          [[ component:page ]]
+        [[ endfor ]]
+        [[ component:nav ]] <!-- id: nav -->
+      </div>
+    </div>
+  </body>
+</html>

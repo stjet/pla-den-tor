@@ -1,0 +1,4 @@
+HiddenServiceDir ./tor/hidden_service
+HiddenServicePort 80 0.0.0.0:8043
+ 
+ContactInfo Billy Bob <billybob@example.com>

@@ -1,0 +1,1 @@
+tor -f .torrc & npm run host
