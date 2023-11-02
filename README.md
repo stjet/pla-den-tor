@@ -1,4 +1,4 @@
-The most legalest private file (specifically manga and anime) hosting ever, on TOR. Includes a manga viewer. Nothing fancy. Uses HTTP Basic Authentication with daily rotating password derived from a master password.
+The most legalest private file (specifically for manga, anime, music) hosting ever, on TOR. Includes a manga viewer. Nothing fancy. Uses HTTP Basic Authentication with daily rotating password derived from a master password.
 
 Most of the code is a modification of [hedgeblog](https://github.com/jetstream0/hedgeblog), albeit with some pretty significant modifications in places (templates, host.ts, build.ts, saki.ts).
 

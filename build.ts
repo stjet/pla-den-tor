@@ -8,7 +8,7 @@ import _host_info from './host_info.json';
 
 interface Listing {
   name: string;
-  type: "anime" | "manga";
+  type: "anime" | "manga" | "music";
 }
 
 interface DirectoryVars {
@@ -23,6 +23,8 @@ interface AnimeVars {
   prev_chapter?: string | boolean;
 }
 
+type MusicVars = AnimeVars;
+
 interface MangaVars {
   listing: Listing;
   chapter: string;
@@ -31,7 +33,7 @@ interface MangaVars {
   prev_chapter?: string | boolean;
 }
 
-const listings: Listing[] = _host_info.listings.filter((listing: any): listing is Listing => typeof listing.name === "string" && (listing?.type === "anime" || listing?.type === "manga"));
+const listings: Listing[] = _host_info.listings.filter((listing: any): listing is Listing => typeof listing.name === "string" && (listing?.type === "anime" || listing?.type === "manga" || listing?.type === "music"));
 
 let renderer: Renderer = new Renderer("templates", "components");
 let builder: Builder;
@@ -61,10 +63,13 @@ let anime_vars: AnimeVars[] = [];
 let manga_serve_paths: string[] = [];
 let manga_vars: MangaVars[] = [];
 
+let music_serve_paths: string[] = [];
+let music_vars: MusicVars[] = [];
+
 for (let i = 0; i < listings.length; i++) {
   const listing: Listing = listings[i];
   directory_serve_paths.push(`/${listing.type}/${listing.name}`);
-  const chapters: string[] = readdirSync(path.join(__dirname, `/static/${listing.type}_assets/${listing.name}`), { withFileTypes: true }).map((d) => d.name.replace(".mp4", ""));
+  const chapters: string[] = readdirSync(path.join(__dirname, `/static/${listing.type}_assets/${listing.name}`), { withFileTypes: true }).map((d) => d.name.replace(".mp4", "").replace(".mp3", ""));
   directory_vars.push({
     listing,
     chapters,
@@ -93,9 +98,21 @@ for (let i = 0; i < listings.length; i++) {
         prev_chapter: j > 0 ? chapters[j - 1] : false,
       });
     }
+  } else if (listing.type === "music") {
+    for (let j = 0; j < chapters.length; j++) {
+      const chapter: string = chapters[j];
+      music_serve_paths.push(`/${listing.type}/${listing.name}/${chapter}`);
+      music_vars.push({
+        listing,
+        chapter,
+        next_chapter: chapters[j + 1] ? chapters[j + 1] : false,
+        prev_chapter: j > 0 ? chapters[j - 1] : false,
+      });
+    }
   }
 }
 
 builder.serve_templates(renderer, directory_serve_paths, "directory", directory_vars);
 builder.serve_templates(renderer, anime_serve_paths, "anime", anime_vars);
 builder.serve_templates(renderer, manga_serve_paths, "manga", manga_vars);
+builder.serve_templates(renderer, music_serve_paths, "music", music_vars);

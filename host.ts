@@ -19,10 +19,19 @@ const stream_chunk_size: number = 2 * 1024 * 1024; //2 MiB
 createServer((req, res) => {
   const todays_password: string = get_password();
   let req_path: string;
+  if (req.url.includes("..")) {
+    //nice try
+    //bad request
+    res.writeHead(400);
+    //write file
+    res.write("400");
+    //end response
+    return res.end();
+  }
   if (!req.url.includes(".")) {
-    req_path = path.join(__dirname, "build", req.url, "index.html");
+    req_path = path.join(__dirname, "build", decodeURI(req.url), "index.html");
   } else {
-    req_path = path.join(__dirname, "build", req.url);
+    req_path = path.join(__dirname, "build", decodeURI(req.url));
   }
   const url_obj = new URL(req.url, `http://${req.headers.host}`);
   //check for auth
@@ -56,7 +65,7 @@ createServer((req, res) => {
     return res.end();
   }
   //set content type
-  let non_utf8_content_types: string[] = ["image/png", "image/gif", "image/jpeg", "video/mp4"];
+  let non_utf8_content_types: string[] = ["image/png", "image/gif", "image/jpeg", "audio/mpeg", "video/mp4"];
   let content_type: string;
   switch (req_path.split(".")[1]) {
     case "html":
@@ -81,6 +90,9 @@ createServer((req, res) => {
     case "jpeg":
     case "jpg":
       content_type = "image/jpeg";
+      break;
+    case "mp3":
+      content_type = "audio/mpeg";
       break;
     case "mp4":
       content_type = "video/mp4";
