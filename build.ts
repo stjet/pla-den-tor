@@ -38,7 +38,7 @@ const listings: Listing[] = _host_info.listings.filter((listing: any): listing i
 let renderer: Renderer = new Renderer("templates", "components");
 let builder: Builder;
 if (process.argv[2] === "--quick") {
-  builder = new Builder("/build", ["anime_assets", "manga_assets", "password"]); //password is included since it is static
+  builder = new Builder("/build", ["anime_assets", "manga_assets", "music_assets", "password"]); //password is included since it is static
 } else {
   builder = new Builder();
 }
@@ -65,6 +65,8 @@ let manga_vars: MangaVars[] = [];
 
 let music_serve_paths: string[] = [];
 let music_vars: MusicVars[] = [];
+
+let songs: string[] = [];
 
 for (let i = 0; i < listings.length; i++) {
   const listing: Listing = listings[i];
@@ -101,6 +103,7 @@ for (let i = 0; i < listings.length; i++) {
   } else if (listing.type === "music") {
     for (let j = 0; j < chapters.length; j++) {
       const chapter: string = chapters[j];
+      songs.push(`${listing.name}/${chapter}`);
       music_serve_paths.push(`/${listing.type}/${listing.name}/${chapter}`);
       music_vars.push({
         listing,
@@ -116,3 +119,7 @@ builder.serve_templates(renderer, directory_serve_paths, "directory", directory_
 builder.serve_templates(renderer, anime_serve_paths, "anime", anime_vars);
 builder.serve_templates(renderer, manga_serve_paths, "manga", manga_vars);
 builder.serve_templates(renderer, music_serve_paths, "music", music_vars);
+
+builder.serve_template(renderer, "/player", "player", {
+  songs,
+});
