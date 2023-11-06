@@ -28,12 +28,17 @@ createServer((req, res) => {
     //end response
     return res.end();
   }
+  const url_obj = new URL(req.url, `http://${req.headers.host}`);
   if (!req.url.includes(".")) {
     req_path = path.join(__dirname, "build", decodeURI(req.url), "index.html");
   } else {
-    req_path = path.join(__dirname, "build", decodeURI(req.url));
+    //is file
+    if (url_obj.pathname.startsWith("/anime_assets") || url_obj.pathname.startsWith("/manga_assets") || url_obj.pathname.startsWith("/music_assets")) {
+      req_path = path.join(__dirname, "static_assets", decodeURI(req.url));
+    } else {
+      req_path = path.join(__dirname, "build", decodeURI(req.url));
+    }
   }
-  const url_obj = new URL(req.url, `http://${req.headers.host}`);
   //check for auth
   //hopefully no security vulnerabilities. please look away
   if (url_obj.pathname !== "/password") {
@@ -64,10 +69,11 @@ createServer((req, res) => {
     res.write("404");
     return res.end();
   }
+  const file_ext: string = req_path.split(".")[1];
   //set content type
   let non_utf8_content_types: string[] = ["image/png", "image/gif", "image/jpeg", "audio/mpeg", "video/mp4"];
   let content_type: string;
-  switch (req_path.split(".")[1]) {
+  switch (file_ext) {
     case "html":
       content_type = "text/html; charset=utf-8";
       break;

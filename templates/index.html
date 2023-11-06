@@ -10,6 +10,13 @@
   </head>
   <body>
     <div id="main">
+      <label for="show">Show:</label>
+      <select id="show" onchange="show_change()">
+        <option value="all" selected>All</option>
+        <option value="anime">Anime</option>
+        <option value="manga">Manga</option>
+        <option value="music">Music</option>
+      </select>
       <div>
         <ul>
           [[ for:listings:listing ]]
@@ -18,5 +25,40 @@
         </ul>
       </div>
     </div>
+    <script>
+      function show_change() {
+        const show_value = document.getElementById("show").value;
+        if (show_value === "all") {
+          document.querySelectorAll(".listing").forEach((l) => {
+            l.style.display = "list-item";
+          });
+        } else if (show_value === "anime") {
+          document.querySelectorAll(".listing").forEach((l) => {
+            if (l.classList.contains("anime-listing")) {
+              l.style.display = "list-item";
+            } else {
+              l.style.display = "none";
+            }
+          });
+        } else if (show_value === "manga") {
+          document.querySelectorAll(".listing").forEach((l) => {
+            if (l.classList.contains("manga-listing")) {
+              l.style.display = "list-item";
+            } else {
+              l.style.display = "none";
+            }
+          });
+        } else if (show_value === "music") {
+          document.querySelectorAll(".listing").forEach((l) => {
+            if (l.classList.contains("music-listing")) {
+              l.style.display = "list-item";
+            } else {
+              l.style.display = "none";
+            }
+          });
+        }
+      }
+      show_change();
+    </script>
   </body>
 </html>

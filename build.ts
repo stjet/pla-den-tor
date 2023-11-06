@@ -36,17 +36,10 @@ interface MangaVars {
 const listings: Listing[] = _host_info.listings.filter((listing: any): listing is Listing => typeof listing.name === "string" && (listing?.type === "anime" || listing?.type === "manga" || listing?.type === "music"));
 
 let renderer: Renderer = new Renderer("templates", "components");
-let builder: Builder;
-if (process.argv[2] === "--quick") {
-  builder = new Builder("/build", ["anime_assets", "manga_assets", "music_assets", "password"]); //password is included since it is static
-} else {
-  builder = new Builder();
-}
+let builder: Builder = new Builder("/build");;
 
 //static page
-if (process.argv[2] !== "--quick") {
-  builder.serve_static_folder("static");
-}
+builder.serve_static_folder("static");
 
 //main page
 builder.serve_template(renderer, "/", "index", {
@@ -71,7 +64,7 @@ let songs: string[] = [];
 for (let i = 0; i < listings.length; i++) {
   const listing: Listing = listings[i];
   directory_serve_paths.push(`/${listing.type}/${listing.name}`);
-  const chapters: string[] = readdirSync(path.join(__dirname, `/static/${listing.type}_assets/${listing.name}`), { withFileTypes: true }).map((d) => d.name.replace(".mp4", "").replace(".mp3", ""));
+  const chapters: string[] = readdirSync(path.join(__dirname, `/static_assets/${listing.type}_assets/${listing.name}`), { withFileTypes: true }).map((d) => d.name.replace(".mp4", "").replace(".mp3", ""));
   directory_vars.push({
     listing,
     chapters,
@@ -91,7 +84,7 @@ for (let i = 0; i < listings.length; i++) {
     for (let j = 0; j < chapters.length; j++) {
       const chapter: string = chapters[j];
       manga_serve_paths.push(`/${listing.type}/${listing.name}/${chapter}`);
-      const images: string[] = readdirSync(path.join(__dirname, `/static/${listing.type}_assets/${listing.name}/${chapter}`), { withFileTypes: true }).map((d) => d.name);
+      const images: string[] = readdirSync(path.join(__dirname, `/static_assets/${listing.type}_assets/${listing.name}/${chapter}`), { withFileTypes: true }).map((d) => d.name);
       manga_vars.push({
         listing,
         chapter,

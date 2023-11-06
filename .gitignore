@@ -1,6 +1,6 @@
 .env
 node_modules
-static
+static_assets
 host_info.json
 *.js
 package-lock.json

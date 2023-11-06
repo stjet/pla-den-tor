@@ -4,33 +4,19 @@ import type { Renderer } from './ryuji.js';
 
 export class Builder {
   build_dir: string;
-  ignore?: string[]; //top level directories/files to not wipe
 
-  constructor(build_dir: string="/build", ignore?: string[]) {
+  constructor(build_dir: string="/build") {
     this.build_dir = path.join(__dirname, build_dir);
-    this.ignore = ignore;
     if (existsSync(this.build_dir)) {
       //wipe the build directory
-      if (!this.ignore || this.ignore?.length === 0) {
-        rmSync(this.build_dir, {
-          recursive: true,
-        });
-      } else {
-        //do not wipe certain directories/files
-        readdirSync(this.build_dir).forEach((member: string) => {
-          if (!this.ignore.includes(member)) {
-            rmSync(path.join(this.build_dir, member), {
-              recursive: true,
-            });
-          }
-        });
-      }
+      rmSync(this.build_dir, {
+        recursive: true,
+      });
     }
-    if (!this.ignore || this.ignore?.length === 0) {
-      mkdirSync(this.build_dir);
-    }
+    mkdirSync(this.build_dir);
   }
 
+  //todo: option where if path already exists, let it be (much faster build times)
   static copy_folder(folder_path: string, dest_path: string) {
     let children: string[] = readdirSync(folder_path);
     for (let i=0; i < children.length; i++) {
@@ -42,7 +28,7 @@ export class Builder {
         copyFileSync(child_path, copy_path);
       } else {
         //directory, make directory and recursively copy
-        mkdirSync(copy_path);
+        if (!existsSync(copy_path)) mkdirSync(copy_path);
         Builder.copy_folder(child_path, path.join(dest_path, child));
       }
     }

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>holaa</title>
+  </head>
+  <body>
+    <div id="main">
+      <input id="master-password" type="password">
+      <button onclick="get_passwords()">get</button>
+      <br>
+      <span id="computed"></span>
+      <br>
+      <span id="computed2"></span>
+    </div>
+    <script>
+      function get_passwords() {
+        get_password(new Date(), "computed");
+        get_password(new Date((new Date()).getTime() + 24 * 60 * 60 * 1000), "computed2");
+      }
+      async function get_password(date, el) {
+        //password changes every day
+        const master_bytes = new TextEncoder().encode(`${document.getElementById("master-password").value}${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}`);
+        const hash_bytes = new Uint8Array(await crypto.subtle.digest("SHA-256", master_bytes));
+        //uint8array into hex
+        let hex_chars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+        let hash_hex = "";
+        for (let i = 0; i < hash_bytes.length; i++) {
+          hash_hex += hex_chars[Math.floor(hash_bytes[i] / 16)];
+          hash_hex += hex_chars[hash_bytes[i] % 16];
+        }
+        document.getElementById(el).innerText = hash_hex.toLowerCase();
+      }
+    </script>
+  </body>
+</html>

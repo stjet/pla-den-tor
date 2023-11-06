@@ -6,7 +6,6 @@
   "scripts": {
     "compile": "tsc -p .",
     "build": "node build.js",
-    "build-quick": "node build.js --quick",
     "host": "node host.js"
   },
   "repository": {
