@@ -14,6 +14,12 @@
       .player {
         margin: 25px;
       }
+      #filters-container {
+        padding-left: 15px;
+      }
+      .artist-song-filter {
+        padding-left: 15px;
+      }
     </style>
   </head>
   <body>
@@ -25,6 +31,27 @@
         <audio id="audio" type="audio/mpeg" controls>
         </audio>
       </div>
+      <!--I would use <details> here, but maybe too abusive-->
+      <div>
+        <input type="checkbox" id="show-filters"/>
+        <label for="show-filters">Show Filters</label>
+        <div id="filters-container" style="display: none;">
+          <input type="button" value="Select All" onclick="filter_select_all()"/>
+          <input type="button" value="Deselect All" onclick="filter_deselect_all()"/>
+          [[ for:artists:artist ]]
+            <div class="artist-filter">
+              <input type="checkbox" id="[[ artist.name ]]-checkbox" onchange="artist_filter_toggle('[[ artist.name ]]')"/>
+              <label for="[[ artist.name ]]-checkbox">[[ artist.name ]]</label>
+              <div id="[[ artist.name ]]-song-filter" class="artist-song-filter">
+                [[ for:artist.songs:song ]]
+                  <input type="checkbox" id="[[ artist.name ]]-[[ song ]]-checkbox" onchange="artist_song_filter_toggle('[[ artist.name ]]', '[[ song ]]')"/>
+                  <label for="[[ artist.name ]]-[[ song ]]-checkbox">[[ song ]]</label>
+                [[ endfor ]]
+              </div>
+            </div>
+          [[ endfor ]]
+        </div>
+      </div>
     </div>
     <div id="songs" style="display: none;">
       [[ for:songs:song ]]
@@ -34,17 +61,17 @@
     <script>
       //help where are all the type annotations
       const songs = Array.from(document.getElementById("songs").children).map((c) => c.innerText);
+      let playable_songs = songs;
       let played = [];
-      console.log(songs);
       //set random song
       let audio_ele = document.getElementById("audio");
-      const random_song_start = songs[Math.floor(Math.random() * songs.length)];
+      const random_song_start = playable_songs[Math.floor(Math.random() * playable_songs.length)];
       document.getElementById("current-song").innerText = random_song_start;
       played.push(played);
       audio_ele.src = `/music_assets/${random_song_start}.mp3`;
       //"ended" event
       audio_ele.addEventListener("ended", () => {
-        const not_played = songs.filter((song) => !played.includes(song));
+        const not_played = playable_songs.filter((song) => !played.includes(song));
         if (not_played.length === 0) return;
         let random_song_next = not_played[Math.floor(Math.random() * not_played.length)];
         document.getElementById("current-song").innerText = random_song_next;
@@ -52,6 +79,40 @@
         audio_ele.src = `/music_assets/${random_song_next}.mp3`;
         audio_ele.play();
       });
+      //show filters toggle
+      const show_filters = document.getElementById("show-filters");
+      function filter_toggle() {
+        if (show_filters.checked) {
+          document.getElementById("filters-container").style.display = "block";
+        } else {
+          document.getElementById("filters-container").style.display = "none";
+        }
+      }
+      show_filters.onchange = filter_toggle;
+      filter_toggle();
+      //artist and artist song filter toggle
+      function artist_filter_toggle(artist) {
+        document.querySelectorAll(`#${artist}-song-filter > input[type=\"checkbox\"]`).forEach((c) => {
+          c.checked = document.getElementById(`${artist}-checkbox`).checked;
+          c.onchange();
+        });
+      }
+      function artist_song_filter_toggle(artist, song) {
+        playable_songs = songs.filter((song) => document.getElementById(`${song.replace("/", "-")}-checkbox`).checked);
+      }
+      function filter_select_all() {
+        document.querySelectorAll(".artist-filter > input[type=\"checkbox\"]").forEach((c) => {
+          c.checked = true;
+          c.onchange();
+        });
+      }
+      function filter_deselect_all() {
+        document.querySelectorAll(".artist-filter > input[type=\"checkbox\"]").forEach((c) => {
+          c.checked = false;
+          c.onchange();
+        });
+      }
+      filter_select_all();
     </script>
   </body>
 </html>

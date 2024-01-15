@@ -115,4 +115,12 @@ builder.serve_templates(renderer, music_serve_paths, "music", music_vars);
 
 builder.serve_template(renderer, "/player", "player", {
   songs,
+  artists: listings.filter((l) => l.type === "music").map(
+    (l) => (
+      {
+        name: l.name,
+        songs: songs.filter((s) => s.startsWith(`${l.name}/`)).map((song) => song.slice(`${l.name}/`.length)),
+      }
+    )
+  ),
 });

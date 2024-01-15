@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "tsc -p .",
     "build": "node build.js",
-    "host": "node host.js"
+    "host": "node host.js",
+    "start": "npm run compile && npm run build && npm run host"
   },
   "repository": {
     "type": "git",
