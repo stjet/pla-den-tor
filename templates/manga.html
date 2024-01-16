@@ -19,6 +19,10 @@
       .manga img {
         width: 100%;
       }
+      #scroll-to-bottom:hover {
+        cursor: pointer;
+        text-decoration: underline;
+      }
       @media only screen and (max-width: 600px) {
         .manga {
           margin: 10px 5vw;
@@ -32,7 +36,7 @@
     <div id="main">
       <div class="manga">
         <h2 style="display: inline-block;">[[ listing.name ]] [[ chapter ]]</h2>
-        <span style="cursor: pointer;" onclick="document.getElementById('nav').scrollIntoView({ behavior: 'smooth' })">Scroll to Bottom</span>
+        <span id="scroll-to-bottom" onclick="document.getElementById('nav').scrollIntoView({ behavior: 'smooth' })">Scroll to Bottom</span>
         <br>
         [[ for:images:image ]]
           [[ component:page ]]

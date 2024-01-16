@@ -11,8 +11,11 @@
         margin: 0;
         padding: 0;
       }
+      #main {
+        margin: 10px;
+      }
       .player {
-        margin: 25px;
+        margin: 15px;
       }
       #filters-container {
         padding-left: 15px;
@@ -24,6 +27,7 @@
   </head>
   <body>
     <div id="main">
+      <a href="/">Front page</a>
       <div class="player">
         <h2 style="display: inline-block;">shuffling</h2>
         <b>Current Song <span id="current-song"></span></b>
@@ -40,12 +44,12 @@
           <input type="button" value="Deselect All" onclick="filter_deselect_all()"/>
           [[ for:artists:artist ]]
             <div class="artist-filter">
-              <input type="checkbox" id="[[ artist.name ]]-checkbox" onchange="artist_filter_toggle('[[ artist.name ]]')"/>
-              <label for="[[ artist.name ]]-checkbox">[[ artist.name ]]</label>
-              <div id="[[ artist.name ]]-song-filter" class="artist-song-filter">
+              <input type="checkbox" id="[[ artist.sanitized_name ]]-checkbox" onchange="artist_filter_toggle('[[ artist.sanitized_name ]]')"/>
+              <label for="[[ artist.sanitized_name ]]-checkbox">[[ if:artist.favourite ]]★[[ endif ]][[ artist.name ]]</label>
+              <div id="[[ artist.sanitized_name ]]-song-filter" class="artist-song-filter">
                 [[ for:artist.songs:song ]]
-                  <input type="checkbox" id="[[ artist.name ]]-[[ song ]]-checkbox" onchange="artist_song_filter_toggle('[[ artist.name ]]', '[[ song ]]')"/>
-                  <label for="[[ artist.name ]]-[[ song ]]-checkbox">[[ song ]]</label>
+                  <input type="checkbox" id="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox" onchange="update_playable_songs()"/>
+                  <label for="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox">[[ if:song.favourite ]]★[[ endif ]][[ song.name ]]</label>
                 [[ endfor ]]
               </div>
             </div>
@@ -81,15 +85,15 @@
       });
       //show filters toggle
       const show_filters = document.getElementById("show-filters");
-      function filter_toggle() {
+      function filter_check() {
         if (show_filters.checked) {
           document.getElementById("filters-container").style.display = "block";
         } else {
           document.getElementById("filters-container").style.display = "none";
         }
       }
-      show_filters.onchange = filter_toggle;
-      filter_toggle();
+      show_filters.onchange = filter_check;
+      filter_check();
       //artist and artist song filter toggle
       function artist_filter_toggle(artist) {
         document.querySelectorAll(`#${artist}-song-filter > input[type=\"checkbox\"]`).forEach((c) => {
@@ -97,8 +101,8 @@
           c.onchange();
         });
       }
-      function artist_song_filter_toggle(artist, song) {
-        playable_songs = songs.filter((song) => document.getElementById(`${song.replace("/", "-")}-checkbox`).checked);
+      function update_playable_songs() {
+        playable_songs = songs.filter((song) => document.getElementById(`${song.replace("/", "-").replaceAll("\"", "\\\"")}-checkbox`).checked);
       }
       function filter_select_all() {
         document.querySelectorAll(".artist-filter > input[type=\"checkbox\"]").forEach((c) => {

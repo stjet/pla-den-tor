@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 
-export const SYNTAX_REGEX = /\[\[ [a-zA-Z0-9.:/\-_!]+ \]\]/g;
+export const SYNTAX_REGEX = /\[\[ [a-zA-Z0-9.:/\*\-_!]+ \]\]/g;
 
 export type file_extension = `.${string}`;
 
@@ -185,12 +185,21 @@ export class Renderer {
         } else {
           //compare with second var
           let var_name2: string = exp_parts[2];
+          let if_in: boolean = false;
           let if_not: boolean = false;
+          //*! is valid
+          if (var_name2.startsWith("*")) {
+            var_name2 = var_name2.slice(1, var_name2.length);
+            if_in = true;
+          }
           if (var_name2.startsWith("!")) {
             var_name2 = var_name2.slice(1, var_name2.length);
             if_not = true;
           }
           let var_value2 = Renderer.get_var(var_name2, vars);
+          if (if_in) {
+            var_value2 = var_value2.find((ele) => ele === var_value);
+          }
           if (if_not) {
             //make sure the two compared variables are NOT equal
             if (var_value !== var_value2) {

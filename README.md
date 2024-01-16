@@ -25,10 +25,12 @@ Then to actually run:
 bash tor_prebuilt.sh
 ```
 
+Make sure to set a master password! See `.env.example`. Enter in the master password at /password to get the current day and the next day's password.
+
 # Tips
 
 ## Adding media
-Add it to the relevant static directory (`/static_assets/anime_assets`, `/static_assets/manga_assets`, or `/static_assets/music_assets`), and create an entry for it in `host_info.json`.
+Add it to the relevant static directory (`/static_assets/anime_assets`, `/static_assets/manga_assets`, or `/static_assets/music_assets`), and create an entry for it in `host_info.json`. See `host_info.json.example` for an example.
 
 ## Hosting Multiple TOR Hidden Services
 If you are running multiple TOR hidden services, you will need to modify the [.torrc file](https://stackoverflow.com/questions/14321214/how-to-run-multiple-tor-processes-at-once-with-different-exit-ips#18895491).
