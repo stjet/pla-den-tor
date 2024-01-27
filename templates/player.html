@@ -7,7 +7,6 @@
     <style>
       html, body {
         width: 100%;
-        height: 100%;
         margin: 0;
         padding: 0;
       }
@@ -34,6 +33,8 @@
         <br>
         <audio id="audio" type="audio/mpeg" controls>
         </audio>
+        <br>
+        <input type="button" value="Skip Song" onclick="next_song()"/>
       </div>
       <!--I would use <details> here, but maybe too abusive-->
       <div>
@@ -74,7 +75,7 @@
       played.push(played);
       audio_ele.src = `/music_assets/${random_song_start}.mp3`;
       //"ended" event
-      audio_ele.addEventListener("ended", () => {
+      function next_song() {
         const not_played = playable_songs.filter((song) => !played.includes(song));
         if (not_played.length === 0) return;
         let random_song_next = not_played[Math.floor(Math.random() * not_played.length)];
@@ -82,7 +83,8 @@
         played.push(random_song_next);
         audio_ele.src = `/music_assets/${random_song_next}.mp3`;
         audio_ele.play();
-      });
+      }
+      audio_ele.addEventListener("ended", next_song);
       //show filters toggle
       const show_filters = document.getElementById("show-filters");
       function filter_check() {

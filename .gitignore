@@ -1,7 +1,7 @@
 .env
 node_modules
 static_assets
-host_info.json
+favourites_info.json
 *.js
 package-lock.json
 build

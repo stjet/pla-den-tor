@@ -1,0 +1,31 @@
+{
+  "senpai-wa-otokonoko": {
+    "favourites": {
+      "listing": true,
+      "chapters": [
+        "c001",
+        "c099"
+      ]
+    }
+  }
+  "bocchi-the-boulder": {
+    "favourites": {
+      "listing": true,
+      "chapters": []
+    }
+  },
+  "not-buna": {
+    "favourites": {
+      "listing": false,
+      "chapters": [
+        "aira"
+      ]
+    }
+  },
+  "arizona-philips": {
+    "favourites": {
+      "listing": true,
+      "chapters": []
+    }
+  }
+}

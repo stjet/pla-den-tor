@@ -2,17 +2,20 @@ import * as path from 'path';
 import { readdirSync } from 'fs';
 import { Renderer } from './ryuji.js';
 import { Builder } from './saki.js';
-import _host_info from './host_info.json';
+import _favourites_info from './favourites_info.json';
 
 //todo: music?
 
-interface Listing {
-  name: string;
-  type: "anime" | "manga" | "music";
+interface FavouritesInfo {
   favourites: {
     listing: boolean; //whether to mark entire listing as favourite
     chapters: string[]; //favourite chapters
-  }; //marked as not optional here, but in the actual host_info.json file, it is optional
+  };
+}
+
+interface Listing extends FavouritesInfo {
+  name: string;
+  type: "anime" | "manga" | "music";
 }
 
 interface DirectoryVars {
@@ -37,20 +40,27 @@ interface MangaVars {
   prev_chapter?: string | boolean;
 }
 
-const listings: Listing[] = _host_info.listings.map(
-  (listing: any) =>
-    //add empty "favourites" if not present in the json
-    listing.favourites ? listing : {
-      ...listing,
-      favourites: {
-        listing: false,
-        chapters: []
-      }
-    }
-).filter(
-  (listing: any): listing is Listing =>
-    typeof listing.name === "string" && (listing?.type === "anime" || listing?.type === "manga" || listing?.type === "music")
-);
+const favourites_info: Record<string, FavouritesInfo> = _favourites_info;
+
+let listings: Listing[] = [];
+
+//add listings from static_assets/anime_assets
+for (let listing_type of ["anime", "manga", "music"]) {
+  listings.push(...readdirSync(path.join(__dirname, `/static_assets/${listing_type}_assets`)).map(
+    (listing_name: string) =>
+      ({
+        name: listing_name,
+        type: listing_type,
+        favourites: {
+          listing: favourites_info[listing_name] ? favourites_info[listing_name].favourites.listing : false,
+          chapters: favourites_info[listing_name] ? favourites_info[listing_name].favourites.chapters : [],
+        }
+      })
+  ).filter(
+    (listing: any): listing is Listing =>
+      typeof listing.name === "string" && (listing?.type === "anime" || listing?.type === "manga" || listing?.type === "music")
+  ));
+}
 
 let renderer: Renderer = new Renderer("templates", "components");
 let builder: Builder = new Builder("/build");
