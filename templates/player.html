@@ -10,10 +10,14 @@
         margin: 0;
         padding: 0;
       }
+      #top {
+        display: grid;
+        grid-template-columns: auto auto;
+      }
       #main {
         margin: 10px;
       }
-      .player {
+      #player {
         margin: 15px;
       }
       #filters-container {
@@ -22,22 +26,53 @@
       .artist-song-filter {
         padding-left: 15px;
       }
+      .add-to-queue-btns {
+        display: none;
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        padding: 0px;
+        margin: 0px;
+        padding-left: 2px;
+      }
+      label:hover > .add-to-queue-btns {
+        display: inline-block;
+      }
+      .add-to-queue-btns:hover {
+        text-decoration: underline;
+      }
+      @media only screen and (max-width: 800px) {
+        #top {
+          grid-template-columns: auto;
+        }
+      }
     </style>
   </head>
   <body>
     <div id="main">
       <a href="/">Front page</a>
-      <div class="player">
-        <h2 style="display: inline-block;">shuffling</h2>
-        <b>Current Song <span id="current-song"></span></b>
-        <br>
-        <audio id="audio" type="audio/mpeg" controls>
-        </audio>
-        <br>
-        <input type="button" value="Skip Song" onclick="next_song()"/>
+      <div id="top">
+        <div id="player">
+          <h2 style="display: inline-block;">shuffling</h2>
+          <b>Current Song <span id="current-song"></span></b>
+          <br>
+          <audio id="audio" type="audio/mpeg" controls>
+          </audio>
+          <br>
+          <input type="button" value="Skip Song" onclick="next_song()"/>
+        </div>
+        <div id="queue">
+          <h2>queue</h2>
+          <p id="empty-queue">empty</p>
+          <div id="in-queue">
+          </div>
+        </div>
       </div>
       <!--I would use <details> here, but maybe too abusive-->
       <div>
+        <input type="checkbox" id="show-title"/>
+        <label for="show-title">Show Current Track in Page Title</label>
+        <br>
         <input type="checkbox" id="show-filters"/>
         <label for="show-filters">Show Filters</label>
         <div id="filters-container" style="display: none;">
@@ -50,7 +85,7 @@
               <div id="[[ artist.sanitized_name ]]-song-filter" class="artist-song-filter">
                 [[ for:artist.songs:song ]]
                   <input type="checkbox" id="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox" onchange="update_playable_songs()"/>
-                  <label for="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox">[[ if:song.favourite ]]★[[ endif ]][[ song.name ]]</label>
+                  <label for="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox">[[ if:song.favourite ]]★[[ endif ]][[ song.name ]] <button class="add-to-queue-btns" onclick="add_to_queue('[[ artist.sanitized_name ]]/[[ song.sanitized_name ]]')">Add to Queue</button></label>
                 [[ endfor ]]
               </div>
             </div>
@@ -64,10 +99,16 @@
       [[ endfor ]]
     </div>
     <script>
+      //TODO: queue
       //help where are all the type annotations
       const songs = Array.from(document.getElementById("songs").children).map((c) => c.innerText);
       let playable_songs = songs;
       let played = [];
+      let queue = [];
+      let queue_id_counter = 0;
+      let show_title = false;
+      let in_queue_ele = document.getElementById("in-queue");
+      let empty_ele = document.getElementById("empty-queue");
       //set random song
       let audio_ele = document.getElementById("audio");
       const random_song_start = playable_songs[Math.floor(Math.random() * playable_songs.length)];
@@ -78,23 +119,60 @@
       function next_song() {
         const not_played = playable_songs.filter((song) => !played.includes(song));
         if (not_played.length === 0) return;
-        let random_song_next = not_played[Math.floor(Math.random() * not_played.length)];
-        document.getElementById("current-song").innerText = random_song_next;
-        played.push(random_song_next);
-        audio_ele.src = `/music_assets/${random_song_next}.mp3`;
+        let next_song = not_played[Math.floor(Math.random() * not_played.length)];
+        if (queue.length > 0) {
+          next_song = queue.shift()[0];
+          in_queue_ele.children[0].remove();
+          if (queue.length === 0) empty_ele.style.display = "block";
+        }
+        document.getElementById("current-song").innerText = next_song;
+        played.push(next_song);
+        audio_ele.src = `/music_assets/${next_song}.mp3`;
         audio_ele.play();
+        if (show_title) {
+          document.title = `Now playing: ${next_song}`;
+        } else {
+          document.title = "possibly a music player";
+        }
       }
       audio_ele.addEventListener("ended", next_song);
+      function add_to_queue(name) {
+        let queue_id = `queue-item-${queue_id_counter}`;
+        queue.push([name, queue_id]);
+        empty_ele.style.display = "none";
+        //<template> is not supported in IE. Yes, I know this is for TOR browser, but still feels wrong. also its not that useful here
+        let queue_item = document.createElement("DIV");
+        queue_item.id = queue_id;
+        let queue_name = document.createElement("B");
+        queue_name.innerText = name;
+        queue_item.appendChild(queue_name);
+        let queue_remove = document.createElement("BUTTON");
+        queue_remove.innerText = "Remove From Queue";
+        queue_remove.onclick = () => {
+          document.getElementById(queue_id).remove();
+          queue = queue.filter((item) => item[1] !== queue_id);
+        };
+        queue_item.appendChild(queue_remove);
+        in_queue_ele.appendChild(queue_item);
+        queue_id_counter++;
+      }
       //show filters toggle
-      const show_filters = document.getElementById("show-filters");
+      const show_filters_ele = document.getElementById("show-filters");
       function filter_check() {
-        if (show_filters.checked) {
+        if (show_filters_ele.checked) {
           document.getElementById("filters-container").style.display = "block";
         } else {
           document.getElementById("filters-container").style.display = "none";
         }
       }
-      show_filters.onchange = filter_check;
+      show_filters_ele.onchange = filter_check;
+      filter_check();
+      //show track in page title toggle
+      const show_title_ele = document.getElementById("show-title");
+      function title_check() {
+        show_title = show_title_ele.checked;
+      }
+      show_title_ele.onchange = title_check;
       filter_check();
       //artist and artist song filter toggle
       function artist_filter_toggle(artist) {

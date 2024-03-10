@@ -39,6 +39,17 @@ createServer((req, res) => {
       req_path = path.join(__dirname, "build", decodeURI(req.url));
     }
   }
+  /*
+  if (!req_path.startsWith(path.join(__dirname, "build"))) {
+    //nice try
+    //bad request
+    res.writeHead(400);
+    //write file
+    res.write("400");
+    //end response
+    return res.end();
+  }
+  */
   //check for auth
   //hopefully no security vulnerabilities. please look away
   if (url_obj.pathname !== "/password") {
