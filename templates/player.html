@@ -23,6 +23,9 @@
       #filters-container {
         padding-left: 15px;
       }
+      #captions-box {
+        height: 1em;
+      }
       .artist-song-filter {
         padding-left: 15px;
       }
@@ -57,7 +60,10 @@
           <b>Current Song <span id="current-song"></span></b>
           <br>
           <audio id="audio" type="audio/mpeg" controls>
+            <track id="audio-captions" default kind="captions" src=""/>
           </audio>
+          <div id="captions-box">
+          </div>
           <br>
           <input type="button" value="Skip Song" onclick="next_song()"/>
         </div>
@@ -99,7 +105,6 @@
       [[ endfor ]]
     </div>
     <script>
-      //TODO: queue
       //help where are all the type annotations
       const songs = Array.from(document.getElementById("songs").children).map((c) => c.innerText);
       let playable_songs = songs;
@@ -109,33 +114,43 @@
       let show_title = false;
       let in_queue_ele = document.getElementById("in-queue");
       let empty_ele = document.getElementById("empty-queue");
-      //set random song
       let audio_ele = document.getElementById("audio");
-      const random_song_start = playable_songs[Math.floor(Math.random() * playable_songs.length)];
-      document.getElementById("current-song").innerText = random_song_start;
-      played.push(played);
-      audio_ele.src = `/music_assets/${random_song_start}.mp3`;
+      let captions_ele = document.getElementById("audio-captions");
+      let captions_box = document.getElementById("captions-box");
+
       //"ended" event
       function next_song() {
+        captions_box.innerHTML = "";
         const not_played = playable_songs.filter((song) => !played.includes(song));
         if (not_played.length === 0) return;
-        let next_song = not_played[Math.floor(Math.random() * not_played.length)];
+        let next = not_played[Math.floor(Math.random() * not_played.length)];
         if (queue.length > 0) {
-          next_song = queue.shift()[0];
+          next = queue.shift()[0];
           in_queue_ele.children[0].remove();
           if (queue.length === 0) empty_ele.style.display = "block";
         }
-        document.getElementById("current-song").innerText = next_song;
-        played.push(next_song);
-        audio_ele.src = `/music_assets/${next_song}.mp3`;
+        document.getElementById("current-song").innerText = next;
+        played.push(next);
+        audio_ele.src = `/music_assets/${next}.mp3`;
         audio_ele.play();
         if (show_title) {
-          document.title = `Now playing: ${next_song}`;
+          document.title = `Now playing: ${next}`;
         } else {
           document.title = "possibly a music player";
         }
+        captions_ele.src = `/music_subtitle_assets/${next}.vtt`;
       }
       audio_ele.addEventListener("ended", next_song);
+
+      captions_ele.addEventListener("cuechange", () => {
+        //do we need to sanitize this? surely not, right?
+        captions_box.innerHTML = "";
+        let active_cue = captions_ele.track.activeCues[0];
+        if (active_cue) {
+          captions_box.appendChild(active_cue.getCueAsHTML());
+        }
+      });
+
       function add_to_queue(name) {
         let queue_id = `queue-item-${queue_id_counter}`;
         queue.push([name, queue_id]);
@@ -156,6 +171,7 @@
         in_queue_ele.appendChild(queue_item);
         queue_id_counter++;
       }
+
       //show filters toggle
       const show_filters_ele = document.getElementById("show-filters");
       function filter_check() {
@@ -167,13 +183,16 @@
       }
       show_filters_ele.onchange = filter_check;
       filter_check();
+
       //show track in page title toggle
       const show_title_ele = document.getElementById("show-title");
       function title_check() {
         show_title = show_title_ele.checked;
       }
       show_title_ele.onchange = title_check;
-      filter_check();
+      title_check();
+      next_song();
+
       //artist and artist song filter toggle
       function artist_filter_toggle(artist) {
         document.querySelectorAll(`#${artist}-song-filter > input[type=\"checkbox\"]`).forEach((c) => {
@@ -181,21 +200,25 @@
           c.onchange();
         });
       }
+
       function update_playable_songs() {
         playable_songs = songs.filter((song) => document.getElementById(`${song.replace("/", "-").replaceAll("\"", "\\\"")}-checkbox`).checked);
       }
-      function filter_select_all() {
-        document.querySelectorAll(".artist-filter > input[type=\"checkbox\"]").forEach((c) => {
-          c.checked = true;
-          c.onchange();
-        });
-      }
+
       function filter_deselect_all() {
         document.querySelectorAll(".artist-filter > input[type=\"checkbox\"]").forEach((c) => {
           c.checked = false;
           c.onchange();
         });
       }
+
+      function filter_select_all() {
+        document.querySelectorAll(".artist-filter > input[type=\"checkbox\"]").forEach((c) => {
+          c.checked = true;
+          c.onchange();
+        });
+      }
+
       filter_select_all();
     </script>
   </body>

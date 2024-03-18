@@ -18,6 +18,7 @@
         <option value="anime">Anime</option>
         <option value="manga">Manga</option>
         <option value="music">Music</option>
+        <option value="favourited">Favourited</option>
       </select>
       <div>
         <ul>
@@ -53,6 +54,14 @@
         } else if (show_value === "music") {
           document.querySelectorAll(".listing").forEach((l) => {
             if (l.classList.contains("music-listing")) {
+              l.style.display = "list-item";
+            } else {
+              l.style.display = "none";
+            }
+          });
+        } else if (show_value === "favourited") {
+          document.querySelectorAll(".listing").forEach((l) => {
+            if (l.classList.contains("favourited-listing")) {
               l.style.display = "list-item";
             } else {
               l.style.display = "none";

@@ -33,7 +33,7 @@ createServer((req, res) => {
     req_path = path.join(__dirname, "build", decodeURI(req.url), "index.html");
   } else {
     //is file
-    if (url_obj.pathname.startsWith("/anime_assets") || url_obj.pathname.startsWith("/manga_assets") || url_obj.pathname.startsWith("/music_assets")) {
+    if (url_obj.pathname.startsWith("/anime_assets") || url_obj.pathname.startsWith("/manga_assets") || url_obj.pathname.startsWith("/music_assets") || url_obj.pathname.startsWith("/music_subtitle_assets")) {
       req_path = path.join(__dirname, "static_assets", decodeURI(req.url));
     } else {
       req_path = path.join(__dirname, "build", decodeURI(req.url));
@@ -96,6 +96,9 @@ createServer((req, res) => {
       break;
     case "xml":
       content_type = "text/xml";
+      break;
+    case "vtt":
+      content_type = "text/vtt";
       break;
     case "png":
     case "ico":
