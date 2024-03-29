@@ -5,3 +5,5 @@ favourites_info.json
 *.js
 package-lock.json
 build
+*.key
+*.cert

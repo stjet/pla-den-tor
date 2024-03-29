@@ -4,6 +4,8 @@ Most of the code is a modification of [hedgeblog](https://github.com/jetstream0/
 
 Since TOR is pretty slow to download large files (eg, videos), the videos are streamed so load time isn't as bad as one might expect (HTTP protocol is amazing, browsers are amazing).
 
+Optionally, this site can be run locally or on the regular web with HTTP(S).
+
 # Running
 After first cloning or downloading the repository:
 

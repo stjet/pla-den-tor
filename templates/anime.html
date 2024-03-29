@@ -24,7 +24,26 @@
     <div id="main">
       <div class="anime">
         <h2 style="margin: 0;">[[ listing.name ]] [[ chapter ]]</h2>
-        <video src="/anime_assets/[[ listing.name ]]/[[ chapter ]].mp4" controls></video>
+        <video id="video" src="/anime_assets/[[ listing.name ]]/[[ chapter ]].mp4" controls></video>
+        <br/>
+        [[ if:higher_quality_available ]]
+          <label for="quality">Choose quality:</label>
+          <select id="quality" onchange="quality_change()">
+            <option selected value="low">Low/Regular Quality</option>
+            <option value="high">Higher Quality</option>
+          </select>
+          <script>
+            function quality_change() {
+              let video = document.getElementById("video");
+              if (document.getElementById("quality").value === "low") {
+                video.src = "/anime_assets/[[ listing.name ]]/[[ chapter ]].mp4";
+              } else if (document.getElementById("quality").value === "high") {
+                video.src = "/anime_assets/[[ listing.name ]]/[[ chapter ]]_higher_quality.mp4";
+              }
+            }
+            quality_change();
+          </script>
+        [[ endif ]]
         [[ component:nav ]]
       </div>
     </div>

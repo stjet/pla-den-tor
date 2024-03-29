@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { readdirSync } from 'fs';
+import { readdirSync, existsSync } from 'fs';
 import { Renderer } from './ryuji.js';
 import { Builder } from './saki.js';
 import _favourites_info from './favourites_info.json';
@@ -23,21 +23,21 @@ interface DirectoryVars {
   chapters: string[]; //name of all the chapters
 }
 
-interface AnimeVars {
+interface ListingVars {
   listing: Listing;
   chapter: string;
   next_chapter?: string | boolean;
   prev_chapter?: string | boolean;
 }
 
-type MusicVars = AnimeVars;
+type MusicVars = ListingVars;
 
-interface MangaVars {
-  listing: Listing;
-  chapter: string;
+interface AnimeVars extends ListingVars {
+  higher_quality_available: boolean;
+};
+
+interface MangaVars extends ListingVars {
   images: string[]; //file names of all the images in the chapter
-  next_chapter?: string | boolean;
-  prev_chapter?: string | boolean;
 }
 
 const favourites_info: Record<string, FavouritesInfo> = _favourites_info;
@@ -92,48 +92,45 @@ let manga_pages_count: number = 0;
 for (let i = 0; i < listings.length; i++) {
   const listing: Listing = listings[i];
   directory_serve_paths.push(`/${listing.type}/${listing.name}`);
-  const chapters: string[] = readdirSync(path.join(__dirname, `/static_assets/${listing.type}_assets/${listing.name}`), { withFileTypes: true }).map((d) => d.name.replace(".mp4", "").replace(".mp3", ""));
+  const chapters: string[] = readdirSync(path.join(__dirname, `/static_assets/${listing.type}_assets/${listing.name}`), { withFileTypes: true }).map((d) => d.name.replace(".mp4", "").replace(".mp3", "")).filter(
+    (chapter: string) =>
+      !(listing.type === "anime" && chapter.endsWith("_higher_quality"))
+  ); //filter out the higher quality anime videos, we want those to be on the same page as the low quality (select quality with dropdown), not listed as a separate episode
   directory_vars.push({
     listing,
     chapters,
   });
-  if (listing.type === "anime") {
-    for (let j = 0; j < chapters.length; j++) {
-      const chapter: string = chapters[j];
-      anime_serve_paths.push(`/${listing.type}/${listing.name}/${chapter}`);
+  for (let j = 0; j < chapters.length; j++) {
+    const chapter: string = chapters[j];
+    const base = {
+      listing,
+      chapter,
+      next_chapter: chapters[j + 1] ? chapters[j + 1] : false,
+      prev_chapter: j > 0 ? chapters[j - 1] : false,
+    };
+    const serve_path = `/${listing.type}/${listing.name}/${chapter}`;
+    if (listing.type === "anime") {
+      anime_serve_paths.push(serve_path);
       anime_vars.push({
-        listing,
-        chapter,
-        next_chapter: chapters[j + 1] ? chapters[j + 1] : false,
-        prev_chapter: j > 0 ? chapters[j - 1] : false,
+        ...base,
+        higher_quality_available: existsSync(path.join(__dirname, `/static_assets/${listing.type}_assets/${listing.name}`, `${chapter}_higher_quality.mp4`)),
       });
-    }
-  } else if (listing.type === "manga") {
-    for (let j = 0; j < chapters.length; j++) {
-      const chapter: string = chapters[j];
-      manga_serve_paths.push(`/${listing.type}/${listing.name}/${chapter}`);
+    } else if (listing.type === "manga") {
+      manga_serve_paths.push(serve_path);
       const images: string[] = readdirSync(path.join(__dirname, `/static_assets/${listing.type}_assets/${listing.name}/${chapter}`), { withFileTypes: true }).map((d) => d.name);
       manga_pages_count += images.length;
       manga_vars.push({
-        listing,
-        chapter,
+        ...base,
         images,
-        next_chapter: chapters[j + 1] ? chapters[j + 1] : false,
-        prev_chapter: j > 0 ? chapters[j - 1] : false,
       });
-    }
-  } else if (listing.type === "music") {
-    for (let j = 0; j < chapters.length; j++) {
-      const chapter: string = chapters[j];
+    } else if (listing.type === "music") {
+      music_serve_paths.push(serve_path);
       songs.push(`${listing.name}/${chapter}`);
-      music_serve_paths.push(`/${listing.type}/${listing.name}/${chapter}`);
       music_vars.push({
-        listing,
-        chapter,
-        next_chapter: chapters[j + 1] ? chapters[j + 1] : false,
-        prev_chapter: j > 0 ? chapters[j - 1] : false,
+        ...base,
       });
     }
+    //
   }
 }
 

@@ -1,4 +1,5 @@
 import { createServer } from 'http';
+import { createServer as createServerHttps } from 'https';
 import * as path from 'path';
 import { existsSync, readFileSync, statSync, createReadStream } from 'fs';
 import { createHash } from 'crypto';
@@ -16,7 +17,7 @@ function get_password(date: Date = new Date()): string {
 const port: number = 8043;
 const stream_chunk_size: number = 2 * 1024 * 1024; //2 MiB
 
-createServer((req, res) => {
+const request_handler = (req, res) => {
   const todays_password: string = get_password();
   let req_path: string;
   if (req.url.includes("..")) {
@@ -162,6 +163,15 @@ createServer((req, res) => {
   }
   //end response
   return res.end();
-}).listen(port);
+};
 
+if (process.argv[2] === "--https") {
+  createServerHttps({
+    key: readFileSync("server.key"),
+    cert: readFileSync("server.cert"),
+  }, request_handler).listen(port + 1);
+  console.log(`Hosting HTTPS on port ${port + 1}`);
+}
+
+createServer(request_handler).listen(port);
 console.log(`Hosting on port ${port}`);
