@@ -52,8 +52,8 @@ for (let listing_type of ["anime", "manga", "music"]) {
         name: listing_name,
         type: listing_type,
         favourites: {
-          listing: favourites_info[listing_name] ? favourites_info[listing_name].favourites.listing : false,
-          chapters: favourites_info[listing_name] ? favourites_info[listing_name].favourites.chapters : [],
+          listing: favourites_info[`${listing_type}-${listing_name}`] ? favourites_info[`${listing_type}-${listing_name}`].favourites.listing : false,
+          chapters: favourites_info[`${listing_type}-${listing_name}`] ? favourites_info[`${listing_type}-${listing_name}`].favourites.chapters : [],
         }
       })
   ).filter(

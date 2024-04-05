@@ -14,6 +14,9 @@
       .music {
         margin: 25px;
       }
+      #captions-box {
+        height: 1em;
+      }
     </style>
   </head>
   <body>
@@ -24,9 +27,25 @@
         <br>
         <audio controls>
           <source src="/music_assets/[[ listing.name ]]/[[ chapter ]].mp3" type="audio/mpeg">
+          <track id="audio-captions" default kind="captions" src="/music_subtitle_assets/[[ listing.name ]]/[[ chapter ]].vtt"/>
         </audio>
+        <div id="captions-box">
+        </div>
         [[ component:nav ]] <!-- id: nav -->
       </div>
     </div>
+    <script>
+      let captions_ele = document.getElementById("audio-captions");
+      let captions_box = document.getElementById("captions-box");
+
+      captions_ele.addEventListener("cuechange", () => {
+        //do we need to sanitize this? surely not, right?
+        captions_box.innerHTML = "";
+        let active_cue = captions_ele.track.activeCues[0];
+        if (active_cue) {
+          captions_box.appendChild(active_cue.getCueAsHTML());
+        }
+      });
+    </script>
   </body>
 </html>

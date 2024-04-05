@@ -7,7 +7,7 @@
   </head>
   <body>
     <div id="main">
-      <input id="master-password" type="password">
+      <input id="master-password" type="password" onkeydown="detect_enter(event)">
       <button onclick="get_passwords()">get</button>
       <br>
       <span id="computed"></span>
@@ -15,10 +15,6 @@
       <span id="computed2"></span>
     </div>
     <script>
-      function get_passwords() {
-        get_password(new Date(), "computed");
-        get_password(new Date((new Date()).getTime() + 24 * 60 * 60 * 1000), "computed2");
-      }
       async function get_password(date, el) {
         //password changes every day
         const master_bytes = new TextEncoder().encode(`${document.getElementById("master-password").value}${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}`);
@@ -31,6 +27,13 @@
           hash_hex += hex_chars[hash_bytes[i] % 16];
         }
         document.getElementById(el).innerText = hash_hex.toLowerCase();
+      }
+      function get_passwords() {
+        get_password(new Date(), "computed");
+        get_password(new Date((new Date()).getTime() + 24 * 60 * 60 * 1000), "computed2");
+      }
+      function detect_enter(e) {
+        if (e.key === "Enter") get_passwords();
       }
     </script>
   </body>

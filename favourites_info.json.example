@@ -1,5 +1,5 @@
 {
-  "senpai-wa-otokonoko": {
+  "manga-senpai-wa-otokonoko": {
     "favourites": {
       "listing": true,
       "chapters": [
@@ -8,13 +8,13 @@
       ]
     }
   }
-  "bocchi-the-boulder": {
+  "anime-bocchi-the-boulder": {
     "favourites": {
       "listing": true,
       "chapters": []
     }
   },
-  "not-buna": {
+  "music-not-buna": {
     "favourites": {
       "listing": false,
       "chapters": [
@@ -22,7 +22,7 @@
       ]
     }
   },
-  "arizona-philips": {
+  "music-arizona-philips": {
     "favourites": {
       "listing": true,
       "chapters": []
