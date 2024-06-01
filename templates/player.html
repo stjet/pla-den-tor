@@ -91,7 +91,7 @@
               <div id="[[ artist.sanitized_name ]]-song-filter" class="artist-song-filter">
                 [[ for:artist.songs:song ]]
                   <input type="checkbox" id="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox" onchange="update_playable_songs()"/>
-                  <label for="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox">[[ if:song.favourite ]]★[[ endif ]][[ song.name ]] <button class="add-to-queue-btns" onclick="add_to_queue('[[ artist.sanitized_name ]]/[[ song.sanitized_name ]]')">Add to Queue</button></label>
+                  <label for="[[ artist.sanitized_name ]]-[[ song.sanitized_name ]]-checkbox">[[ if:song.favourite ]]★[[ endif ]][[ song.name ]][[ if:song.subbed ]] (subbed)[[ endif ]] <button class="add-to-queue-btns" onclick="add_to_queue('[[ artist.sanitized_name ]]/[[ song.sanitized_name ]]')">Add to Queue</button></label>
                 [[ endfor ]]
               </div>
             </div>

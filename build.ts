@@ -89,6 +89,8 @@ let music_vars: MusicVars[] = [];
 let songs: string[] = [];
 let manga_pages_count: number = 0;
 
+let subbed_songs = [];
+
 for (let i = 0; i < listings.length; i++) {
   const listing: Listing = listings[i];
   directory_serve_paths.push(`/${listing.type}/${listing.name}`);
@@ -129,6 +131,9 @@ for (let i = 0; i < listings.length; i++) {
       music_vars.push({
         ...base,
       });
+      if (existsSync(path.join(__dirname, `/static_assets/music_subtitle_assets/${listing.name}/${chapter}.vtt`))) {
+        subbed_songs.push(`${listing.name}/${chapter}`);
+      }
     }
     //
   }
@@ -147,6 +152,7 @@ builder.serve_template(renderer, "/stats", "stats", {
   anime_episodes_count: anime_serve_paths.length,
   artists_count: listings.filter((l) => l.type === "music").length,
   songs_count: songs.length,
+  sub_count: subbed_songs.length,
 });
 
 builder.serve_template(renderer, "/player", "player", {
@@ -163,6 +169,7 @@ builder.serve_template(renderer, "/player", "player", {
               //I don't think " can be in file names... but just in case
               sanitized_name: song.slice(`${l.name}/`.length).replaceAll("\"", "\\\""),
               favourite: l.favourites.chapters.includes(song.slice(`${l.name}/`.length)),
+              subbed: subbed_songs.includes(song),
             }
           )
         ),
