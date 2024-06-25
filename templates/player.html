@@ -68,10 +68,14 @@
           <input type="button" value="Skip Song" onclick="next_song()"/>
         </div>
         <div id="queue">
-          <h2>queue</h2>
+          <h2>queue <input type="button" value="Download Queue as Playlist" onclick="download_queue_as_playlist()"/></h2>
           <p id="empty-queue">empty</p>
           <div id="in-queue">
           </div>
+          <label for="playlist-upload">Upload Playlist (Adds to Queue Randomly):</label>
+          <input id="playlist-upload" type="file" accept=".playlist" onchange="upload_playlist()"/>
+          <br>
+          <input type="button" value="Download History" onclick="download_history()"/>
         </div>
       </div>
       <!--I would use <details> here, but maybe too abusive-->
@@ -109,6 +113,7 @@
       const songs = Array.from(document.getElementById("songs").children).map((c) => c.innerText);
       let playable_songs = songs;
       let played = [];
+      let history = []; //like played but with more info
       let queue = [];
       let queue_id_counter = 0;
       let show_title = false;
@@ -120,6 +125,13 @@
 
       //"ended" event
       function next_song() {
+        if (audio_ele.currentSrc !== "") {
+          history.push({
+            name: played[played.length - 1],
+            length: audio_ele.duration,
+            ended: audio_ele.currentTime,
+          });
+        }
         captions_box.innerHTML = "";
         const not_played = playable_songs.filter((song) => !played.includes(song));
         if (not_played.length === 0) return;
@@ -220,6 +232,44 @@
       }
 
       filter_select_all();
+
+      //playlist file format is just newline separated artist-song
+
+      function download_queue_as_playlist() {
+        let a = document.createElement("A");
+        a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(queue.map((q) => q[0]).join("\n"))}`;
+        a.download = "queue.playlist";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+      }
+
+      function upload_playlist() {
+        let reader = new FileReader();
+        reader.readAsText(document.getElementById("playlist-upload").files[0]);
+        reader.addEventListener("load", () => {
+          let playlist_songs = reader.result.split("\n");
+          let randomized = [];
+          while (randomized.length < playlist_songs.length) {
+            let rand = Math.floor(Math.random() * playlist_songs.length);
+            if (!randomized.includes(playlist_songs[rand])) {
+              randomized.push(playlist_songs[rand]);
+            }
+          }
+          for (const n of randomized) {
+            add_to_queue(n);
+          }
+        });
+      }
+
+      function download_history() {
+        let a = document.createElement("A");
+        a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(history))}`;
+        a.download = "queue.playlist";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+      }
     </script>
   </body>
 </html>

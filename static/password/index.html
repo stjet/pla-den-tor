@@ -10,7 +10,7 @@
       <input id="master-password" type="password" onkeydown="detect_enter(event)">
       <button onclick="get_passwords()">get</button>
       <br>
-      <span id="computed"></span>
+      <span id="computed"></span> <button onclick="navigator.clipboard.writeText(document.getElementById('computed').textContent)">Copy</button>
       <br>
       <span id="computed2"></span>
     </div>
