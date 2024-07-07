@@ -62,6 +62,12 @@ for (let listing_type of ["anime", "manga", "music"]) {
   ));
 }
 
+//get playlists if any (will add to player at a later step)
+let playlists: string[] = [];
+if (existsSync(path.join(__dirname, "/static_assets/playlists"))) {
+  playlists.push(...readdirSync(path.join(__dirname, "/static_assets/playlists")).map((name: string) => name));
+}
+
 let renderer: Renderer = new Renderer("templates", "components");
 let builder: Builder = new Builder("/build");
 
@@ -156,6 +162,7 @@ builder.serve_template(renderer, "/stats", "stats", {
 });
 
 builder.serve_template(renderer, "/player", "player", {
+  playlists,
   songs,
   artists: listings.filter((l) => l.type === "music").map(
     (l) => (

@@ -38,6 +38,9 @@
         margin: 0px;
         padding-left: 2px;
       }
+      .q-item-button {
+        margin-left: 5px;
+      }
       label:hover > .add-to-queue-btns {
         display: inline-block;
       }
@@ -74,6 +77,14 @@
           </div>
           <label for="playlist-upload">Upload Playlist (Adds to Queue Randomly):</label>
           <input id="playlist-upload" type="file" accept=".playlist" onchange="upload_playlist()"/>
+          <br>
+          <label for="playlist-select">Or Select Playlist:</label>
+          <select id="playlist-select">
+            [[ for:playlists:playlist ]]
+              <option value="[[ playlist ]]">[[ playlist ]]</option>
+            [[ endfor ]]
+          </select>
+          <input type="button" value="Add Playlist" onclick="add_selected_playlist()"/>
           <br>
           <input type="button" value="Download History" onclick="download_history()"/>
         </div>
@@ -173,7 +184,23 @@
         let queue_name = document.createElement("B");
         queue_name.innerText = name;
         queue_item.appendChild(queue_name);
+        let queue_up = document.createElement("BUTTON");
+        queue_up.className = "q-item-button";
+        queue_up.innerText = "^";
+        queue_up.onclick = () => {
+          if (queue.length === 1) return;
+          let i = queue.findIndex((item) => item[1] === queue_id);
+          if (i === 0) return;
+          let qir = document.getElementById(queue_id);
+          qir.remove();
+          let t = queue.find((item) => item[1] === queue_id);
+          queue = queue.filter((item) => item[1] !== queue_id);
+          queue.splice(i-1, 0, t);
+          in_queue_ele.insertBefore(qir, in_queue_ele.children.item(i-1));
+        };
+        queue_item.appendChild(queue_up);
         let queue_remove = document.createElement("BUTTON");
+        queue_remove.className = "q-item-button";
         queue_remove.innerText = "Remove From Queue";
         queue_remove.onclick = () => {
           document.getElementById(queue_id).remove();
@@ -244,31 +271,40 @@
         a.click();
       }
 
+      function add_playlist(playlist_songs) {
+        let randomized = [];
+        while (randomized.length < playlist_songs.length) {
+          let rand = Math.floor(Math.random() * playlist_songs.length);
+          if (!randomized.includes(playlist_songs[rand])) {
+            randomized.push(playlist_songs[rand]);
+          }
+        }
+        for (const n of randomized) {
+          add_to_queue(n);
+        }
+      }
+
       function upload_playlist() {
         let reader = new FileReader();
         reader.readAsText(document.getElementById("playlist-upload").files[0]);
         reader.addEventListener("load", () => {
           let playlist_songs = reader.result.split("\n");
-          let randomized = [];
-          while (randomized.length < playlist_songs.length) {
-            let rand = Math.floor(Math.random() * playlist_songs.length);
-            if (!randomized.includes(playlist_songs[rand])) {
-              randomized.push(playlist_songs[rand]);
-            }
-          }
-          for (const n of randomized) {
-            add_to_queue(n);
-          }
+          add_playlist(playlist_songs);
         });
       }
 
       function download_history() {
         let a = document.createElement("A");
         a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(history))}`;
-        a.download = "queue.playlist";
+        a.download = `${Date.now()}.history`;
         a.style.display = "none";
         document.body.appendChild(a);
         a.click();
+      }
+
+      async function add_selected_playlist() {
+        let playlist_songs = (await (await fetch(`/playlists/${document.getElementById("playlist-select").value}`)).text()).split("\n");
+        add_playlist(playlist_songs);
       }
     </script>
   </body>

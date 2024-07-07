@@ -34,7 +34,7 @@ const request_handler = (req, res) => {
     req_path = path.join(__dirname, "build", decodeURI(req.url), "index.html");
   } else {
     //is file
-    if (url_obj.pathname.startsWith("/anime_assets") || url_obj.pathname.startsWith("/manga_assets") || url_obj.pathname.startsWith("/music_assets") || url_obj.pathname.startsWith("/music_subtitle_assets")) {
+    if (url_obj.pathname.startsWith("/anime_assets") || url_obj.pathname.startsWith("/manga_assets") || url_obj.pathname.startsWith("/music_assets") || url_obj.pathname.startsWith("/music_subtitle_assets") || "/playlists") {
       req_path = path.join(__dirname, "static_assets", decodeURI(req.url));
     } else {
       req_path = path.join(__dirname, "build", decodeURI(req.url));
