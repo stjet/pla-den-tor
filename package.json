@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/jetstream0/pla-den-tor#readme",
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "typescript": "^5.5.3"
   },
   "devDependencies": {
     "@types/node": "^20.4.5"
