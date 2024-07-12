@@ -17,6 +17,9 @@ function get_password(date: Date = new Date()): string {
 const port: number = 8043;
 const stream_chunk_size: number = 2 * 1024 * 1024; //2 MiB
 
+//meant for running locally, where password is not needed and a hassle
+const pass = !process.argv.includes("--no-password");
+
 const request_handler = (req, res) => {
   const todays_password: string = get_password();
   let req_path: string;
@@ -34,7 +37,7 @@ const request_handler = (req, res) => {
     req_path = path.join(__dirname, "build", decodeURI(req.url), "index.html");
   } else {
     //is file
-    if (url_obj.pathname.startsWith("/anime_assets") || url_obj.pathname.startsWith("/manga_assets") || url_obj.pathname.startsWith("/music_assets") || url_obj.pathname.startsWith("/music_subtitle_assets") || "/playlists") {
+    if (url_obj.pathname.startsWith("/anime_assets") || url_obj.pathname.startsWith("/manga_assets") || url_obj.pathname.startsWith("/music_assets") || url_obj.pathname.startsWith("/music_subtitle_assets") || url_obj.pathname.startsWith("/playlists")) {
       req_path = path.join(__dirname, "static_assets", decodeURI(req.url));
     } else {
       req_path = path.join(__dirname, "build", decodeURI(req.url));
@@ -53,7 +56,7 @@ const request_handler = (req, res) => {
   */
   //check for auth
   //hopefully no security vulnerabilities. please look away
-  if (url_obj.pathname !== "/password") {
+  if (url_obj.pathname !== "/password" && pass) {
     const auth_header: string | undefined = Array.isArray(req.headers.authorization) ? req.headers.authorization[0] : req.headers.authorization;
     if (typeof auth_header === "undefined") {
       //unauthorized
@@ -66,7 +69,7 @@ const request_handler = (req, res) => {
     const base64_pair: string = auth_header.slice(6);
     //we don't care about username
     const provided_password: string = Buffer.from(base64_pair, "base64").toString("ascii").split(":")[1]; //we know there will not be a ":" in the password since it is a hash
-    if (todays_password !== provided_password) {
+    if (todays_password !== provided_password && pass) {
       //unauthorized
       res.writeHead(401, {
         "WWW-Authenticate": "Basic realm=\"Access to the site\"",
@@ -165,7 +168,7 @@ const request_handler = (req, res) => {
   return res.end();
 };
 
-if (process.argv[2] === "--https") {
+if (process.argv.includes("--https")) {
   createServerHttps({
     key: readFileSync("server.key"),
     cert: readFileSync("server.cert"),

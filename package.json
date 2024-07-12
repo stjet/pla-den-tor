@@ -7,8 +7,10 @@
     "compile": "tsc -p .",
     "build": "node build.js",
     "host": "node host.js",
+    "host-no-pass": "node host.js --no-password",
     "host-https": "node host.js --https",
-    "start": "npm run compile && npm run build && npm run host"
+    "start": "npm run compile && npm run build && npm run host",
+    "start-no-pass": "npm run compile && npm run build && npm run host-no-pass"
   },
   "repository": {
     "type": "git",
