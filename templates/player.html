@@ -303,7 +303,7 @@
       }
 
       async function add_selected_playlist() {
-        let playlist_songs = (await (await fetch(`/playlists/${document.getElementById("playlist-select").value}`)).text()).split("\n");
+        let playlist_songs = (await (await fetch(`/playlists/${document.getElementById("playlist-select").value}`)).text()).split("\n").filter((p) => p.trim() !== "");
         add_playlist(playlist_songs);
       }
     </script>
