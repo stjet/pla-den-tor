@@ -24,7 +24,7 @@
         padding-left: 15px;
       }
       #captions-box {
-        height: 1em;
+        min-height: 4.5em;
       }
       .artist-song-filter {
         padding-left: 15px;
@@ -39,7 +39,7 @@
         padding-left: 2px;
       }
       .q-item-button {
-        margin-left: 5px;
+        margin-right: 5px;
       }
       label:hover > .add-to-queue-btns {
         display: inline-block;
@@ -128,6 +128,7 @@
       let queue = [];
       let queue_id_counter = 0;
       let show_title = false;
+      let get_next_lyric = true;
       let in_queue_ele = document.getElementById("in-queue");
       let empty_ele = document.getElementById("empty-queue");
       let audio_ele = document.getElementById("audio");
@@ -172,6 +173,18 @@
         if (active_cue) {
           captions_box.appendChild(active_cue.getCueAsHTML());
         }
+        if (get_next_lyric) {
+          //00:00:03.500 --> 00:00:08.200
+          const ct = audio_ele.currentTime;
+          const fi = Array.from(captions_ele.track.cues).findIndex((cue) => ct < cue.startTime);
+          if (fi !== -1) {
+            let next_lyric = document.createElement("DIV");
+            next_lyric.classList.add("next-lyric");
+            next_lyric.innerText = "Next: ";
+            next_lyric.appendChild(captions_ele.track.cues[fi].getCueAsHTML());
+            captions_box.appendChild(next_lyric);
+          }
+        }
       });
 
       function add_to_queue(name) {
@@ -181,9 +194,14 @@
         //<template> is not supported in IE. Yes, I know this is for TOR browser, but still feels wrong. also its not that useful here
         let queue_item = document.createElement("DIV");
         queue_item.id = queue_id;
-        let queue_name = document.createElement("B");
-        queue_name.innerText = name;
-        queue_item.appendChild(queue_name);
+        let queue_remove = document.createElement("BUTTON");
+        queue_remove.className = "q-item-button";
+        queue_remove.innerText = "x";
+        queue_remove.onclick = () => {
+          document.getElementById(queue_id).remove();
+          queue = queue.filter((item) => item[1] !== queue_id);
+        };
+        queue_item.appendChild(queue_remove);
         let queue_up = document.createElement("BUTTON");
         queue_up.className = "q-item-button";
         queue_up.innerText = "^";
@@ -199,14 +217,9 @@
           in_queue_ele.insertBefore(qir, in_queue_ele.children.item(i-1));
         };
         queue_item.appendChild(queue_up);
-        let queue_remove = document.createElement("BUTTON");
-        queue_remove.className = "q-item-button";
-        queue_remove.innerText = "Remove From Queue";
-        queue_remove.onclick = () => {
-          document.getElementById(queue_id).remove();
-          queue = queue.filter((item) => item[1] !== queue_id);
-        };
-        queue_item.appendChild(queue_remove);
+        let queue_name = document.createElement("B");
+        queue_name.innerText = name;
+        queue_item.appendChild(queue_name);
         in_queue_ele.appendChild(queue_item);
         queue_id_counter++;
       }
@@ -272,12 +285,24 @@
       }
 
       function add_playlist(playlist_songs) {
-        let randomized = [];
-        while (randomized.length < playlist_songs.length) {
-          let rand = Math.floor(Math.random() * playlist_songs.length);
-          if (!randomized.includes(playlist_songs[rand])) {
-            randomized.push(playlist_songs[rand]);
+        //preprocess to expand *
+        let playlist_process = [];
+        for (const song of playlist_songs) {
+          const song_split = song.split("/");
+          if (song_split[1] === "*") {
+            playlist_process.push(...playable_songs.filter((song) => song.startsWith(`${song_split[0]}/`)));
+          } else {
+            playlist_process.push(song);
           }
+        }
+        playlist_songs = playlist_process;
+        //add to queue
+        let randomized = [];
+        const psl = playlist_songs.length;
+        for (let u = 0; u < psl; u++) {
+          let rand = Math.floor(Math.random() * playlist_songs.length);
+          randomized.push(playlist_songs[rand]);
+          playlist_songs.splice(rand, 1);
         }
         for (const n of randomized) {
           add_to_queue(n);
