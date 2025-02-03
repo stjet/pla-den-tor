@@ -174,6 +174,7 @@ builder.serve_template(renderer, "/player", "player", {
             {
               name: song.slice(`${l.name}/`.length),
               //I don't think " can be in file names... but just in case
+              //might need to do &quot; for the html and \" for the js?
               sanitized_name: song.slice(`${l.name}/`.length).replaceAll("\"", "\\\""),
               favourite: l.favourites.chapters.includes(song.slice(`${l.name}/`.length)),
               subbed: subbed_songs.includes(song),
