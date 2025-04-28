@@ -14,7 +14,7 @@ function get_password(date: Date = new Date()): string {
   return hash.digest("hex");
 }
 
-const port: number = 8043;
+const port: number = process.argv.map((arg) => Number(arg)).filter((arg) => !isNaN(arg))[0] ?? 8043;
 const stream_chunk_size: number = 2 * 1024 * 1024; //2 MiB
 
 //meant for running locally, where password is not needed and a hassle
